@@ -110,11 +110,11 @@ body {
   text-align: center;
 }
 
-.sidebar .tags li {
+.sidebar .tags li, .authors li {
   display: inline-block;
 }
 
-.sidebar .tags a {
+.sidebar .tags a, .authors a {
   color: white;
   border-radius: 10px;
   text-decoration: none;

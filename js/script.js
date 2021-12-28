@@ -6,6 +6,7 @@ optTitleSelector = '.post-title',
 optArticleTagsSelector = '.post-tags .list',
 optArticleAuthorSelector = '.post-author',
 optTagsListSelector = '.tags',
+optAuthorsListSelector = '.authors',
 optCloudClassCount = '10',
 optCloudClassPrefix = 'tag-size-';
 
@@ -161,6 +162,7 @@ addClickListenersToTags();
 /*************************************************************************************************** TWORZENIE AUTORÓW **************************************************************************/
 
 function generateAuthors() {
+  let allAuthors = {};
   const articles = document.querySelectorAll(optArticleSelector);
 
   for (let article of articles) {
@@ -168,10 +170,59 @@ function generateAuthors() {
     const author = article.getAttribute('data-author');
     console.log('author: ', author);
     const linkHTML = '<li><a href="#author-' + author + '">' + author + '</a></li>';
+    if (!allAuthors.hasOwnProperty(author)) {
+      allAuthors[author] = 1;
+    } else {
+      allAuthors[author]++;
+    }
     authorWrapper.innerHTML = linkHTML;
   }
+  const authorList = document.querySelector(optAuthorsListSelector);
+
+  const authorParams = calculateAuthorsParams(allAuthors);
+
+  let allAuthorsHTML = '';
+  for (let author in allAuthors) {
+    allAuthorsHTML += '<li><a class="' + calculateAuthorsClass(allAuthors[author], authorParams) + '" href="#author-' + author + '"><span>' + author + ' (' + allAuthors[author] + ') ' + '</span></a></li>';
+  }
+  authorList.innerHTML = allAuthorsHTML;
 }
 generateAuthors();
+
+// function generateTags() {
+
+//   let allTags = {};
+//   const articles = document.querySelectorAll(optArticleSelector);
+
+//   for (let article of articles) {
+//     const tagsWrapper = article.querySelector(optArticleTagsSelector);
+//     let html ='';
+//     const tagsAttribute = article.getAttribute('data-tags');
+//     const tags = tagsAttribute.split(' ');
+//     for (let tag of tags) {
+//       const linkHTML = '<li><a href="#tag-' + tag + '">' + tag + '</a></li>';
+//       html += linkHTML + ' ';
+
+//       if(!allTags.hasOwnProperty(tag)) {           // sprawdzamy czy alltags NIE ma w sobie taga
+//         allTags[tag] = 1;                          // jeśli nie to ustawiamy go na 1
+//       } else {                                     // w przeciwnym wypadku
+//         allTags[tag]++;                            // zwiększamy owy tag o 1
+//       }
+//     }
+//     tagsWrapper.innerHTML = html;
+//   }
+//   const tagList = document.querySelector(optTagsListSelector);
+
+//   const tagsParams = calculateTagsParams(allTags);
+//   console.log('tagsParams: ', tagsParams);
+
+//   let allTagsHTML = '';
+//   for (let tag in allTags) {
+//     allTagsHTML += '<li><a class="' + calculateTagsClass(allTags[tag], tagsParams) + '" href="#tag-' + tag + '"><span>' + tag + ' (' + allTags[tag] + ') ' + '</span></a></li>';
+//   }
+//   tagList.innerHTML = allTagsHTML;
+// }
+// generateTags();
 
 function authorClickHandler(event) {
   event.preventDefault();
@@ -197,3 +248,28 @@ function addClickListenersToAuthors() {
   }
 }
 addClickListenersToAuthors();
+
+/********************************************************************************************** ZLICZANIE AUTORÓW *********************************************************************************/
+
+function calculateAuthorsClass(count, params) {
+  const normalizedCount = count - params.min;
+  const normalizedMax = params.max - params.min;
+  const percentage = normalizedCount / normalizedMax;
+  const classNumber = Math.floor( percentage * (optCloudClassCount - 1) + 1);
+  const number = optCloudClassPrefix + classNumber;
+  return number;
+}
+
+
+function calculateAuthorsParams(authors) {
+  const params = {max: 0, min: 99999999};
+  for (let author in authors) {
+    if(authors[author] > params.max) { 
+      params.max = authors[author];
+    } else if (authors[author] < params.min){
+      params.min = authors[author];
+    }
+    console.log(author + 'is used' + authors[author] + ' times');
+  }
+  return params;
+}
